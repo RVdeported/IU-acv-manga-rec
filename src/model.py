@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import torch
 import functools
 from sklearn.decomposition import PCA
-from dataset import YoloDataset
+from .dataset import YoloDataset
 import os
 from torch.utils.data import DataLoader
 
@@ -28,4 +28,4 @@ class YoloModel:
 
     def forward(self, image):
         res = self.model(image).flatten(1).numpy()
-        return self.pca.transform(res) 
+        return self.pca.transform(res)
