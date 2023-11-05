@@ -34,15 +34,21 @@ def split_ds(
         for i in range(0, train):
             dest = a_path_mo / "train" / cls 
             Path(dest).mkdir( parents=True, exist_ok=True )
-            shutil.copy(a_path_pr / cls / items[i] / "0.jpg", dest / (items[i]+".jpg"))
+            images = glob("./*", root_dir= a_path_pr / cls / items[i])
+            for j, im in enumerate(images):
+                shutil.copy(a_path_pr / cls / items[i] / im, dest / f"{items[i]}-{j}.jpg")
         for i in range(train, train + val):
             dest = a_path_mo / "val" / cls 
             Path(dest).mkdir( parents=True, exist_ok=True )
-            shutil.copy(a_path_pr / cls / items[i] / "0.jpg", dest / (items[i]+".jpg"))
+            images = glob("./*", root_dir= a_path_pr / cls / items[i])
+            for j, im in enumerate(images):
+                shutil.copy(a_path_pr / cls / items[i] / im, dest / f"{items[i]}-{j}.jpg")
         for i in range(train + val, train + val + test):
             dest = a_path_mo / "test" / cls
             Path(dest).mkdir( parents=True, exist_ok=True )
-            shutil.copy(a_path_pr / cls / items[i] / "0.jpg", dest / (items[i]+".jpg"))
+            images = glob("./*", root_dir= a_path_pr / cls / items[i])
+            for j, im in enumerate(images):
+                shutil.copy(a_path_pr / cls / items[i] / im, dest / f"{items[i]}-{j}.jpg")
 
     print(classes)
 

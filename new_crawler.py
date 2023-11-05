@@ -7,12 +7,13 @@ from requests.models import PreparedRequest
 import requests
 import json
 from pathlib import Path
+import time
+from src.utils import split_ds
 
 class ReadMangaCrawler():
     def __init__(self, options: Options = Options(), required: int = 10) -> None:
         self.START = "https://readmanga.live/list/genres/sort_name"
-        self.RESTRICTED_GENRES = {"гарем", "гендерная интрига", "арт", "додзинси", "кодомо", "сёдзё-ай", "сёнэн-ай", "этти", "юри",
-                     "сянься", "уся"}
+        self.RESTRICTED_GENRES = {"сёнэн", "сёдзё", "сэйнэн", "дзёсэй"}
         self.REQUIRED = required
         self.PAGE_SIZE = 50
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
@@ -47,6 +48,23 @@ class ReadMangaCrawler():
         result = [g.text for g in genre_list.find_elements("xpath", "//a[contains(@href, 'genre')]")]
         return [r for r in result if r != ""]
     
+    def _set_reader_settings(self):
+        self.driver.get("https://readmanga.live/evoliuciia_bolshogo_dereva__A385fe/vol1/123")
+        self.driver.maximize_window()
+
+        el = self.driver.find_element("xpath", "//a[@data-original-title='Настройки читалки. Масштабирование клавишей Z']")
+
+        self.driver.execute_script("arguments[0].click();", el)
+
+        time.sleep(1)
+
+        el = self.driver.find_element("xpath", "//input[@value='web']")
+
+        self.driver.execute_script("arguments[0].click();", el)
+
+        el = self.driver.find_element("xpath", "//i[@title='перезагрузить страницу']")
+        self.driver.execute_script("arguments[0].click();", el)
+    
     def _get_pages(self, genre, normalized_name):
         chapter_table = self.driver.find_element("xpath", "//table")
 
@@ -58,14 +76,15 @@ class ReadMangaCrawler():
         chapter_title, chapter_link = self._text_and_link(chapter_anchor)
         chapter_title = self._normalize(chapter_title)
 
-        self._get_mature(chapter_link)
+        self._set_reader_settings()
 
+        self._get_mature(chapter_link)
         images = [img.get_attribute("src") for img in self.driver.find_elements("xpath", "//img[@id='mangaPicture']")]
 
 
         print(images)
         print(f"fount {len(images)} images")
-        for index, image_url in enumerate(images):
+        for index, image_url in enumerate(images[:10]):
 
             if image_url == "#":
                 break
@@ -92,6 +111,8 @@ class ReadMangaCrawler():
         genres = self._get_genres()
 
         self.crawled[genre].append((name, genres))
+
+        self._get_pages(genre, name)
 
 
     
@@ -137,7 +158,6 @@ class ReadMangaCrawler():
 
         genres = [(g.get_attribute("innerHTML"), g.get_attribute("href")) for g in self.driver.find_elements("xpath", "//a[@class = 'element-link']")]
 
-        genres = genres[0:2]
         self.visited_mangas = set()
 
         for g in genres:
@@ -146,7 +166,7 @@ class ReadMangaCrawler():
 
             self.crawled[name] = []
 
-            if name not in self.RESTRICTED_GENRES:
+            if name in self.RESTRICTED_GENRES:
                 self.crawl_genre(name, link)
 
 
@@ -158,5 +178,7 @@ class ReadMangaCrawler():
 options = Options()
 # options.add_experimental_option("detach", True)
 
-crawler = ReadMangaCrawler(options=options, required=1)
+crawler = ReadMangaCrawler(options=options, required=30)
 crawler.crawl()
+
+# split_ds('data', 'data')
