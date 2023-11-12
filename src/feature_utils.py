@@ -135,6 +135,7 @@ class MangaPredictor:
                 transformed.append([self.model.forward(img).flatten(), self.text(ph).cpu(), self.extract_title(ph), ph])
             except Exception as e:
                 print(e, ph)
+        # Returns - (image_features, text_features, manga_title, path)
         return self.column(transformed, 0), self.column(transformed, 1), self.column(transformed, 2), self.column(transformed, 3)
 
     def get_image_text(self, path):
