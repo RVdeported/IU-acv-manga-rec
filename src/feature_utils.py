@@ -9,6 +9,7 @@ from spellchecker import SpellChecker
 from transformers import BertTokenizer, BertModel
 from src.dataset import YoloDataset
 from src.model import YoloModel
+from src.annoy_index import AnnoyTree
 
 from PIL import Image
 from torchvision import transforms
@@ -94,6 +95,10 @@ class MangaPredictor:
         self.model = None
         self.text = BERTconverter(a_device_ocr = ocr_device)
         self.pca   = PCA(n_components=n_pca)
+        self.annoy = None
+        self.train_features = None
+        self.train_titles   = None
+        self.train_path     = None
         
     def extract_title(self, path):
         return path.split(os.sep)[-1].split('-')[0]
@@ -110,20 +115,26 @@ class MangaPredictor:
             ds[i] = np.concatenate([arr_1[i], arr_2[i]], axis=0)
         return ds
 
-    def train(self, data_path, shape, epochs):
-        self.model = YoloModel(data_path, shape, epochs)
+    def train(self, data_path, shape, epochs, y_lr0=0.01, y_lr1=0.01):
+        self.model = YoloModel(data_path, shape, epochs, y_lr0, y_lr1)
         self.shape = shape
         img, text, manga, path = self.get_features(Path(data_path) / "train")
         train_ds = self.convert_to_ds(img, text)
-        print(train_ds)
         self.pca.fit(train_ds)
+        vec = self.apply_pca_lists(img, text)
+        self.train_features = vec
+        self.train_titles   = manga
+        self.train_path     = path
+        self.annoy = AnnoyTree(vec, manga, path)
 
     def __call__(self, data_path):
         img, text, manga, path = self.get_features(Path(data_path))
+        return self.apply_pca(img, text), manga, path
+
+    def apply_pca_lists(self, img, text):
         ds = self.convert_to_ds(img, text)
         ds_pca = self.pca.transform(ds)
-        return ds_pca, manga, path
-
+        return ds_pca
 
     def get_features(self, folder):
         dataset = YoloDataset(folder, self.shape)
@@ -149,13 +160,21 @@ class MangaPredictor:
         ])
         img = comp(img).unsqueeze(0)
         
-        return self.model.forward(img).flatten(), self.text(path)
+        return self.apply_pca_lists([self.model.forward(img).flatten()], [self.text(path)])
+    
+    def get_top_rec(self, img_path):
+        vec = self.get_image_text(img_path)
+        return self.annoy.infer(vec)
     
     def save(self, path):
+        self.annoy = None
         with open(path, "wb+") as f:
             pickle.dump(self, f)
+        
 
     @staticmethod
     def load(path):
         with open(path, "rb") as f:
-            return pickle.load(f)
+            mp = pickle.load(f)
+        mp.annoy = AnnoyTree(mp.train_features, mp.train_titles, mp.train_path)
+        return mp

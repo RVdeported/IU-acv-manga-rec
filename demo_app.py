@@ -3,30 +3,18 @@ import numpy as np
 import time
 import cv2
 from src.annoy_index import AnnoyTree
-from src.model import YoloModel
 from src.feature_utils import MangaPredictor
 import pickle
-
-with open('results/text_vectors.pik', "rb") as f:
-    text = pickle.load(f)
-with open('results/image_vectors.pik', "rb") as f:
-    img = pickle.load(f)
-with open('results/manga_names.pik', "rb") as f:
-    manga = pickle.load(f)
-with open('results/paths.pik', "rb") as f:
-    paths = pickle.load(f)
-
-model = YoloModel.load('model.pik')
-ann = AnnoyTree(img, text, manga, paths)
 
 IMG1 = './data/demo/Sample1.jpg'
 IMG2 = './data/demo/Sample2.jpg'
 IMG3 = './data/demo/Sample3.jpg'
+MODEL_PATH = './results/mp.pckl'
+
+MODEL = MangaPredictor.load(MODEL_PATH)
 
 def img_launch(path):
-    img, text = model.get_image_text(path)
-    predictions = ann.infer(img, text)
-    predictions = sorted(predictions, key=lambda x: x[2])
+    predictions = MODEL.get_top_rec(path)
     st.session_state.predictions = predictions
 
 if 'predictions' not in st.session_state:
@@ -74,9 +62,9 @@ if st.session_state.predictions != None:
     for idx, col in enumerate(st.columns(5)):
         with col:
             name, p, score = predictions[idx]
-            st.markdown(f"**RESULT {idx+1}.**")
-            st.markdown(f"**{name}**")
-            st.markdown(f"Infernece score - {score}")
+            st.markdown("**RESULT {}.**".format(idx+1))
+            st.markdown("**{}**".format(name))
+            st.markdown("Infernece score - {:.2f}".format(score))
             st.image(cv2.imread(p))
 
 

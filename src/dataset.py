@@ -8,7 +8,7 @@ class YoloDataset(Dataset):
     def __init__(self, path: str, shape: list[int]):
         classes = os.listdir(path)
         res = []
-        CLASSES = ["дзёсэй", "сёдзё", "сёнэн", "сэйнэн"]
+        CLASSES = ["Josei", "Shōjo", "Shonen", "Seinen"]
         for genre in CLASSES:
             images = os.listdir(os.path.join(path, genre))
             res.extend(list(map(lambda x: os.path.join(path, genre, x), images)))
