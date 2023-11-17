@@ -1,1 +1,1 @@
-streamlit run ./src/demo_app.py
+streamlit run ./demo_app.py

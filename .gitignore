@@ -1,0 +1,11 @@
+ICV-Project/
+wandb/
+crawler_logs.txt
+runs/
+models/
+data/
+__pycache__/
+results/
+prepared_data/
+_untracked/
+
