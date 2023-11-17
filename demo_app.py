@@ -6,9 +6,10 @@ from src.annoy_index import AnnoyTree
 from src.feature_utils import MangaPredictor
 import pickle
 
-IMG1 = './data/demo/Sample1.jpg'
-IMG2 = './data/demo/Sample2.jpg'
-IMG3 = './data/demo/Sample3.jpg'
+
+IMG1 = './samples/Sample1.jpg'
+IMG2 = './samples/Sample2.jpg'
+IMG3 = './samples/Sample3.jpg'
 MODEL_PATH = './results/mp.pckl'
 
 MODEL = MangaPredictor.load(MODEL_PATH)
