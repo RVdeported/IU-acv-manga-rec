@@ -11,8 +11,8 @@ class AnnoyTree():
                  features: list[np.array], # list of 1D vectors with features
                  name:     list[str],      # list of corresponding Manga titles
                  img_path: list[str],      # list of manga location  
-                 dist:     str='angular', 
-                 trees:    int=10
+                 dist:     str='angular',  # annoy distance metric
+                 trees:    int=10          # max_depth in annoy
                 ):
 
         self.name = name

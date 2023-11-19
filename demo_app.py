@@ -5,7 +5,7 @@ from src.feature_utils import MangaPredictor
 #---------------------------------------------# 
 # constants definition                        #
 #---------------------------------------------# 
-IMG1 = './samples/Sample1.png'
+IMG1 = './samples/Sample1.jpg'
 IMG2 = './samples/Sample2.png'
 IMG3 = './samples/Sample3.jpg'
 # loading of an object with everything
@@ -67,9 +67,9 @@ input_file = st.file_uploader("Choose file...", type=['png', 'jpeg', 'jpg'])
 
 if input_file is not None:
     extension = input_file.type.split('/')[-1]
-    with open("./data/demo/input." + extension, 'wb+') as f:
+    with open("./input." + extension, 'wb+') as f:
         f.write(input_file.getvalue())
-    img_launch("./data/demo/input." + extension)
+    img_launch("./input." + extension)
 
 #---------------------------------------------# 
 # Render of model output if one was recorded  #
