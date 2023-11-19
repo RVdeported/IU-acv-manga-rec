@@ -67,7 +67,7 @@ input_file = st.file_uploader("Choose file...", type=['png', 'jpeg', 'jpg'])
 
 if input_file is not None:
     extension = input_file.type.split('/')[-1]
-    with open("./input." + extension, 'wb+') as f:
+    with open("./input." + extension, 'wb') as f:
         f.write(input_file.getvalue())
     img_launch("./input." + extension)
 
