@@ -145,9 +145,9 @@ class MangaPredictor:
     
     
     @staticmethod
-    def convert_to_ds(arr_1: list[np.array()], 
-                      arr_2:list[np.array()]
-                      ) -> np.array():
+    def convert_to_ds(arr_1: list[np.array], 
+                      arr_2:list[np.array]
+                      ) -> np.array:
         '''
         conversion from the two lists with 1D numpy arr to the 2D numpy 
         '''
@@ -188,8 +188,8 @@ class MangaPredictor:
         
 
     def apply_pca_lists(self, 
-                        img: list[np.array()], 
-                        text: list[np.array()]):
+                        img: list[np.array], 
+                        text: list[np.array]):
         '''PCA transformatio of a list of numpy array'''
         ds = self.convert_to_ds(img, text)
         ds_pca = self.pca.transform(ds)
